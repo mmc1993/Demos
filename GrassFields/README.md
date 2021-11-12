@@ -1,6 +1,6 @@
-# 初次尝试GPU Driver —— 大范围植被渲染
+# 初次尝试GPU GPU Driven —— 大范围植被渲染
 
-*GPU Driver简单概要，即把整体逻辑放到GPU上运行，解放CPU压榨GPU，初次尝试，记录一下研究过程。*
+*GPU Driven简单概要，即把整体逻辑放到GPU上运行，解放CPU压榨GPU，初次尝试，记录一下研究过程。*
 
 *渡神纪*
 ![渡神纪](Images/渡神纪.jpg)
