@@ -18,7 +18,7 @@
 
 **先写个初版实现效果**
 
-初版实现很简单，通过一张纹理控制草的生长范围，把世界坐标映射到纹理UV，从纹理采样判断该坐标上是否长草，筛选完所有坐标后，GPU Instance就可以了。这个思路简单粗暴，一次渲染了整个场景的草，假设这个场景大小是1024 x 1024平方米，每平方米1颗草，那么一次就要渲染100百万颗草。接下来尝试优化这个过程，在游戏中，每一个瞬间并不能看到全部内容，视野外的看不见，被挡住的看不见，事实上大部分内容都看不见，在那些看不到的地方渲染的草是多余的，因此剔除掉这些多余的草则是本例的目的。
+初版实现很简单，通过一张纹理控制草的生长范围，把世界坐标映射到纹理UV，从纹理采样判断该坐标上是否长草，筛选完所有坐标后，GPU Instance就可以了。这个思路简单粗暴，一次渲染了整个场景的草，假设这个场景大小是1024 x 1024平方米，每平方米1颗草，那么一次就要渲染100百万颗草。接下来尝试优化这个过程，在游戏中，每一个瞬间并不能看到全部内容，视野外的看不见，被挡住的看不见，事实上大部分内容都看不见，在那些看不到的地方渲染的草是多余的，剔除掉这些多余的草则是本例的目的。
 
 本例通过以下4个步骤进行剔除：
 
@@ -69,7 +69,7 @@ mFrustumFarRT = farPosition + farToT + farToR;
 
 //  计算视锥AABB
 mFrustumAABB = new Vector4(GrabDepthComp.SelfCamera.transform.position.x, GrabDepthComp.SelfCamera.transform.position.z,
-                            GrabDepthComp.SelfCamera.transform.position.x, GrabDepthComp.SelfCamera.transform.position.z);
+                           GrabDepthComp.SelfCamera.transform.position.x, GrabDepthComp.SelfCamera.transform.position.z);
 UpdateFrustumAABB(mFrustumNearLB);
 UpdateFrustumAABB(mFrustumNearRB);
 UpdateFrustumAABB(mFrustumNearLT);
@@ -92,7 +92,7 @@ mFrustumAABB.w = Mathf.Clamp(mFrustumAABB.w + FrustumOutDistance, 0, WorldSize);
 
 **2. 对渲染范围四叉分割LOD**
 
-虽然上述步骤限定了渲染范围，但范围依旧很大，比如站在高山上看远方，视野开阔，可视距离远，但并非可见之处都需要渲染高密度的草丛，因为远方的草丛看不见细节，只能看到一片绿色，因此该步骤将渲染范围拆分多个LOD，近处的高密度渲染，远处的低密度渲染。（通常会把长草的地面用绿色，从而达到在远处看，即使没有草丛也会看到一片绿，可见文章开头第三张图片）
+虽然上述步骤限定了渲染范围，但范围依旧很大，比如站在高山上看远方，视野开阔，可视距离远，但并非可见之处都需要渲染高密度的草丛，因为远方的草丛看不见细节，只能看到一片绿色，该步骤将渲染范围拆分多个LOD，近处的高密度渲染，远处的低密度渲染。（通常会把长草的地面用绿色，从而达到在远处看，即使没有草丛也会看到一片绿，可见文章开头第三张图片）
 
 四叉树分割算法大致思路是，若区块中心到相机的距离短于区块最长边，则该区块需要四叉分割并且LOD+1。
 
@@ -114,7 +114,7 @@ class FrustumTreeNode {
 ...
 
 var cameraCoord = new Vector2(GrabDepthComp.transform.position.x,
-                                GrabDepthComp.transform.position.z);
+                              GrabDepthComp.transform.position.z);
 mFrustumTreeA.Clear();
 mFrustumTreeA.Add(new FrustumTreeNode(0, mFrustumAABB));
 
@@ -124,9 +124,9 @@ for (var lod = 0; lod != LODNumber; ++lod)
     for (var i = 0; i != mFrustumTreeA.Count; ++i)
     {
         var length = Mathf.Max(mFrustumTreeA[i].AABB.z - mFrustumTreeA[i].AABB.x,
-                                mFrustumTreeA[i].AABB.w - mFrustumTreeA[i].AABB.y);
+                               mFrustumTreeA[i].AABB.w - mFrustumTreeA[i].AABB.y);
         var center = new Vector2((mFrustumTreeA[i].AABB.x + mFrustumTreeA[i].AABB.z) / 2,
-                                    (mFrustumTreeA[i].AABB.y + mFrustumTreeA[i].AABB.w) / 2);
+                                 (mFrustumTreeA[i].AABB.y + mFrustumTreeA[i].AABB.w) / 2);
         if ((cameraCoord - center).magnitude < length)
         {
             mFrustumTreeB.Add(new FrustumTreeNode(lod + 1, new Vector4(mFrustumTreeA[i].AABB.x, mFrustumTreeA[i].AABB.y, center.x, center.y)));
@@ -149,7 +149,7 @@ for (var lod = 0; lod != LODNumber; ++lod)
 
 **3. 视锥裁剪**
 
-前面两步剔除掉了大量额外渲染，但渲染范围是通过包围盒求出的，包围盒是一个长方体，它除了覆盖视野范围还覆盖了一些多余的范围，因此该步骤将剔除这些多余的范围。
+前面两步剔除掉了大量额外渲染，但渲染范围是通过包围盒求出的，包围盒是一个长方体，它除了覆盖视野范围还覆盖了一些多余的范围，该步骤将剔除这些多余的范围。
 
 思路是先求出视锥的6个面，随后在Compute Shader中，对每个单位求出包围盒，如果这个包围盒不在视锥体的6个面内，则该单位不可见。
 
@@ -227,7 +227,7 @@ HizMap的全名叫Hierarchical Z-buffer Map，它主要有两部分：
 
 **使用HizMap**
 
-当渲染一个单位时，求出该单位的屏幕空间包围盒，然后再查询对应LOD的HizMap，因为HizMap中记录的是最终深度，因此如果该单位所查询到的值比自身大（或者小），则说明该单位并不会被呈现在屏幕上，可以在此时剔除掉该单位。
+当渲染一个单位时，求出该单位的屏幕空间包围盒，然后再查询对应LOD的HizMap，HizMap中记录的是最终深度，如果该单位所查询到的值比自身大（或者小），则说明该单位并不会被呈现在屏幕上，可以在此时剔除掉该单位。
 
 下面用几张图概括HizMap的原理：
 
@@ -403,7 +403,7 @@ void HizMapCopy (uint3 id : SV_DispatchThreadID)
 ![HizMap裁剪_渲染1](Images/HizMap裁剪_渲染1.gif)
 ![HizMap裁剪_渲染2](Images/HizMap裁剪_渲染2.gif)
 
-从上图Game视图左上角可以看到，渲染1024 x 1024 x 1的植被，经过剔除后，每帧渲染大概1100～4000之间，比起100万，简直少了太多。因为有HizMap，减少到0也不是不可能，因为Demo场景只是一个平面，简单摆放了一些遮挡，在实际游戏场景中，遮挡物远比Demo中复杂，因此HizMap能发挥更好的效果。
+从上图Game视图左上角可以看到，渲染1024 x 1024 x 1的植被，经过剔除后，每帧渲染大概1100～4000之间，比起100万，简直少了太多。因为有HizMap，减少到0也不是不可能，Demo场景只是一个平面，简单摆放了一些遮挡，在实际游戏场景中，遮挡物远比Demo中复杂，HizMap能发挥更好的效果。
 
 **总结**
 
