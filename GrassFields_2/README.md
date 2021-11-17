@@ -112,9 +112,9 @@ float  windValue = tex2Dlod(_WindMask, float4(wcoord.xz / 64, 0, 0)).r;
 //  微风
 wcoord.xyz += wind * sin(_Time.y * _WindSpeed + dot(wcoord, _WindDirect)) * 0.3;
 //  强风
-wcoord.xyz += wind * saturate(sin(_Time.y * _WindSpeed + dot(wcoord, _WindDirect)) * 2 - 1) * windValue;
-wcoord.xyz += wind * saturate(sin(0.75 * _Time.y * _WindSpeed + dot(wcoord, _WindDirect)) * 2 - 1) * windValue;
-wcoord.xyz += wind * saturate(sin(0.25 * _Time.y * _WindSpeed + dot(wcoord, _WindDirect)) * 2 - 1) * windValue;
+wcoord.xyz += wind * saturate(sin(_Time.y * _WindSpeed + dot(wcoord, _WindDirect))) * windValue;
+wcoord.xyz += wind * saturate(sin(0.75 * _Time.y * _WindSpeed + dot(wcoord, _WindDirect))) * windValue;
+wcoord.xyz += wind * saturate(sin(0.25 * _Time.y * _WindSpeed + dot(wcoord, _WindDirect))) * windValue;
 ```
 
 到此，渲染部分就结束了，下面展示一段加入高度图后的最终表现：
