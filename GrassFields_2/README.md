@@ -1,7 +1,6 @@
 # 初次尝试GPU Driver —— 大范围植被渲染之着色
 
-*在[《初次尝试GPU Driven —— 大范围植被渲染》
-](https://www.cnblogs.com/mmc1206x/p/15542745.html)中实现了草地分布，本文实现草的着色。*
+*在[《初次尝试GPU Driven —— 大范围植被渲染》](https://www.cnblogs.com/mmc1206x/p/15542745.html)中实现了草地分布，本文实现草的着色。*
 
 本文分四个部分：
 * 生成网格
@@ -15,7 +14,7 @@
 
 ![草网格](Images/草网格.png)
 
-上图从左到右依次提高细节程度。
+上图从左到右依次提高细节。
 
 **随机调整**
 
@@ -61,7 +60,7 @@ o.vertex = UnityWorldToClipPos(o.wcoord);
 
 ![随机](Images/随机.png)
 
-草已经被打乱了，但每颗草太直了，接下来压弯每颗草，思路是根据草的顶点Y轴朝前压弯，Y轴值越大越弯。
+草已经被打乱了，但每颗草太直了，接下来压弯每颗草，思路是将草往前倾斜，同时降低Y轴值，Y轴值越大，则倾斜越大，下压力越大。
 
 ```GLSL
 float2 forward = float2(0, 1);
@@ -79,7 +78,7 @@ v.vertex.y  -= length(offset);
 
 **着色**
 
-给定两个基础颜色，分别表示草的顶部和底部色，随后用Lambert光照着色。
+着色这部分简单处理，给定两个基础颜色，分别表示草的顶部和底部色，随后用Lambert光照着色。
 
 ```GLSL
 float3 worldCoord = i.wcoord;
